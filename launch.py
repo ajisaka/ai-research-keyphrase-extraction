@@ -57,7 +57,7 @@ def result():
     raw_text = request.forms.text
     n = int(request.forms.n)
     response.content_type = 'application/json'
-    retrun json.dumps(extract_keyphrases(embedding_distributor, pos_tagger, raw_text, n, 'en'))
+    return json.dumps(extract_keyphrases(embedding_distributor, pos_tagger, raw_text, n, 'en'))
 
 
 if __name__ == '__main__':
