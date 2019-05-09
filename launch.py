@@ -7,6 +7,9 @@ from swisscom_ai.research_keyphrase.model.method import MMRPhrase
 from swisscom_ai.research_keyphrase.preprocessing.postagging import PosTaggingStanford
 from swisscom_ai.research_keyphrase.util.fileIO import read_file
 
+import json
+from bottle import route, run, request, response, static_file
+
 
 def extract_keyphrases(embedding_distrib, ptagger, raw_text, N, lang, beta=0.55, alias_threshold=0.7):
     """
@@ -49,22 +52,16 @@ def load_local_pos_tagger(lang):
     model_directory_path = config_parser.get('STANFORDTAGGER', 'model_directory_path')
     return PosTaggingStanford(jar_path, model_directory_path, lang=lang)
 
+@route("/embedrank", method="POST")
+def result():
+    raw_text = request.forms.text
+    n = int(request.forms.n)
+    response.content_type = 'application/json'
+    retrun json.dumps(extract_keyphrases(embedding_distributor, pos_tagger, raw_text, n, 'en'))
+
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Extract keyphrases from raw text')
-
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('-raw_text', help='raw text to process')
-    group.add_argument('-text_file', help='file containing the raw text to process')
-
-    parser.add_argument('-N', help='number of keyphrases to extract', required=True, type=int)
-    args = parser.parse_args()
-
-    if args.text_file:
-        raw_text = read_file(args.text_file)
-    else:
-        raw_text = args.raw_text
-
     embedding_distributor = load_local_embedding_distributor('en')
     pos_tagger = load_local_pos_tagger('en')
-    print(extract_keyphrases(embedding_distributor, pos_tagger, raw_text, args.N, 'en'))
+
+run(host="0.0.0.0", port=8080, debug=True)
