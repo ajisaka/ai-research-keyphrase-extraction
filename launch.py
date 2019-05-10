@@ -63,5 +63,6 @@ def result():
 if __name__ == '__main__':
     embedding_distributor = load_local_embedding_distributor('en')
     pos_tagger = load_local_pos_tagger('en')
+    print('Initialized')
 
 run(host="0.0.0.0", port=8080, debug=True)
